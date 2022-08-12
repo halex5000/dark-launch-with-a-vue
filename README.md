@@ -561,10 +561,67 @@ We are going to leverage LaunchDarkly's targeting to target a specific user so o
 
 
 
-#### 
+#### A New User Experience
 
-- Creating the Timeline Component
-- Create the new-ui component in LaunchDarkly
+- Next we're going to learn about user targeting so we can roll out our new feature, the new user experience, in an ultra-controlled way. We'll gate our new user experience behind a feature flag so no one will see it until we're ready and we'll decide exactly who can see it when we are.
+  (need a link to user targeting)
+
+- Last time, we created the feature, then we gated it, this time, we'll embrace "feature-driven development" and we'll start with the gate, then build out the feature behind the gate.
+
+  Begin by updating `src/App.vue`  with the following:
+  ```vue
+  <template>
+    <v-main>
+      <HelloOsmo v-if="isNewExperienceEnabled" />
+      <HelloWorld v-else />
+    </v-main>
+  </template>
+  
+  <script setup>
+  // unchanged lines omitted
+  let isNewExperienceEnabled = ref(false);
+  try {
+  	// unchanged lines omitted
+    isNewExperienceEnabled = useLDFlag('new-ui', false);
+  </script>
+  ```
+
+  We're adding a new component, `HelloOsmo` to our `App.vue`  and we're adding the boolean flags, all the user targeting will happen in LaunchDarkly, so your code doesn't have to worry about **who** should and shouldn't see this, just **whether** they should or not.
+
+- Create a new file `HelloOsmo.vue`  in `src/components` you'll add to this component in just a minute.
+  ```vue
+  <template>
+  
+  </template>
+  
+  <script setup>
+  
+  </script>
+  ```
+
+  
+
+- Create the new-ui feature flag in LaunchDarkly
+  So we can really embrace feature-driven development, we'll create our flag in LaunchDarkly now and start using it to manage what we see in our local app while we're developing.
+
+  - In the LaunchDarkly console, create a new feature, Login.
+    Make sure to check `SDKs using Client-side ID` 
+  - Enable the feature in LaunchDarkly
+    Your new user experience feature is now enabled for all users.
+    In your local app, you should see a mostly blank screen.
+  - Change the `Default Rule` to serve False, so that by default, users will not see this feature.
+
 - Target a user for the feature
+  Before we ship this new feature which isn't ready for general consumption we're going to target a user so only that user can see it and we won't ruin the experience for existing users.
+  In the LaunchDarkly console, in your `new-ui` feature flag, click on `+ Add user targets` to add a user target.
+  ![CleanShot 2022-08-12 at 16.32.22@2x](./public/blog-images/individual-targeting.png)
+
+  Type in the username you want to target and press enter.
+  Click the Review and Save button at the top of the screen.
+
 - Enable the feature in LaunchDarkly
-- We see our new feature!
+  Effective immediately, this user can see this feature, and only this user.
+
+- Go back and Login to your app with this username and you'll see your new user experience, which is admittedly underwhelming at the moment.
+
+- 

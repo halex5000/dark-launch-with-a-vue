@@ -18,7 +18,8 @@
     </v-toolbar>
   </v-app-bar>
   <v-main>
-    <HelloWorld/>
+    <HelloOsmo v-if="isNewExperienceEnabled"/>
+    <HelloWorld v-else/>
   </v-main>
 </v-app>
 </template>
@@ -29,11 +30,14 @@ import HelloWorld from './components/HelloWorld.vue'
 import { useLDReady, useLDFlag } from 'launchdarkly-vue-client-sdk';
 import { store } from './components/store';
 import Login from './components/Login.vue';
+import HelloOsmo from './components/HelloOsmo.vue';
 let isLaunchDarklyReady = ref(false);
 let isLoginEnabled = ref(false);
+let isNewExperienceEnabled = ref(false);
 try {
   isLaunchDarklyReady = useLDReady();
   isLoginEnabled = useLDFlag('login', false);
+  isNewExperienceEnabled = useLDFlag('new-ui', false);
 } catch (error) {
   console.error('error checking LD Ready', error);
 }
