@@ -7,7 +7,9 @@ import vuetify from "vite-plugin-vuetify";
 // https://vitejs.dev/config/
 export default defineConfig({
   server: {
-    host: true
+    hmr: {
+      port: 443,
+    }
   },
   plugins: [vue(), vuetify({ autoImport: true })],
 });
