@@ -563,7 +563,7 @@ We are going to leverage LaunchDarkly's targeting to target a specific user so o
   - Click Create
   - Click the `Import from Github` button
     (you'll have to authorize Replit to access your Github repo)
-  - Install the packages (after your repl imports)
+  - Install packages in the `Shell` tab (after your repl imports)
     ```shell
     npm install
     ```
