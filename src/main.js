@@ -22,7 +22,7 @@ if (import.meta.env.VITE_CLIENT_ID) {
     //user, // our user is anonymoust (by default) but you can read more about user here
   };
   
-  // app.use(LDPlugin, launchDarklyPluginOptions)
+  app.use(LDPlugin, launchDarklyPluginOptions)
 }
 
 loadFonts()

@@ -289,9 +289,244 @@ git init
 git add .
 git commit -m 'nbd, just dark launching a Vue app'
 
-# optional side-quest
+# optional side-quest so you can share with friends and family
 # requires github cli
 gh repo create
-
+? What would you like to do? Push an existing local repository to GitHub
+? Path to local repository .
+? Description Dark launch with a Vue using LaunchDarkly Vue SDK, Vite, Vue, and Veautify!
+? Visibility Public
+✓ Created repository halex5000/dark-launch-with-a-vue on GitHub
+? Add a remote? Yes
+? What should the new remote be called? origin
 ```
 
+### The real Dark Launch with a Vue
+
+We're going to add a new feature to our app, but this is going to be a real dark launch.
+We are going to leverage LaunchDarkly's targeting to target a specific user so only they can see the new feature while we build it out so we don't break things for everyone else.
+
+#### Adding a Login Option
+
+- As our app evolves, it's going to become stateful, so we're going to need a way to share state between our components without breaking all the rules. A state store which conceals this state will work for our app, but you can read more about state management in Vue [here](https://vuejs.org/guide/scaling-up/state-management.html).
+  Create a new file `src/components/store.js`  with the following
+
+  ```javascript
+  import { reactive } from 'vue'
+  
+  export const store = reactive({
+    // whether to show the Login drawer
+    showLogin: false,
+    // the username of the user
+    username: 'anonymous',
+    // functions to avoid having folks manipulate state globally
+    toggleLogin() {
+      this.showLogin = !this.showLogin;
+    },
+    setUsername(username) {
+      this.username = username;
+    },
+  });
+  ```
+
+- Add a button to the toolbar to open the login drawer
+  ```vue
+  <!-- abridged version of App.vue -->
+  
+  <template>
+    <v-app>
+      <v-app-bar>
+        <v-toolbar dark v-if="isLaunchDarklyReady" color="#405BFF">
+          <v-toolbar-title>Features Powered by LaunchDarkly</v-toolbar-title>
+          <v-btn @click="store.toggleLogin()">
+              <template v-slot:prepend>
+                <v-badge
+                  color="info"
+                  :content="store.username"
+                  inline
+                >
+                </v-badge>
+              </template>
+              <v-icon>mdi-account</v-icon>
+          </v-btn>
+        </v-toolbar>
+      </v-app-bar>
+      <v-main>
+        <HelloWorld/>
+      </v-main>
+    </v-app>
+  </template>
+  
+  <script setup>
+    // only showing the new imports
+    import { store } from './components/store';
+  </script>
+  ```
+  
+  Which adds this to your toolbar:
+  ![CleanShot 2022-08-12 at 13.50.14@2x](/Users/ahardman/development/dark-launch-with-a-vue/public/blog-images/login-toggle-button.png)
+  
+- Create a Login Component
+  Add a file `Login.vue` to `src/components`
+
+  ```vue
+  <script setup>
+      import { useLDClient } from "launchdarkly-vue-client-sdk";
+      import { store } from './store';
+  
+      // capture the state in an object so we don't update the actual username until
+      // the user clicks login
+      const form = {};
+  
+      // this is how we'll interact with the LaunchDarkly client directly
+      // also needs to be in the setup block
+      // we'll use this to identify the user once they login
+      const client = useLDClient();
+  
+      // set the username when the user clicks login
+      const login = async () => {
+          if (form.username) {
+              // asks the LaunchDarkly client for the current user info
+              const user = client.getUser();
+  
+              console.log("current user is", client.getUser());
+  
+              // here's where update the user's identity in the LaunchDarkly client
+              await client.identify({
+                  // keep anything else we already attributed to the user
+                  ...user,
+                  anonymous: false,
+                  // update the key, the unique identifier for this user
+                  // to be their username
+                  // we use .value to access the value because as a reactive object
+                  // we interact with Vue's proxy for the object
+                  // learn more here: https://vuejs.org/guide/essentials/reactivity-fundamentals.html
+                  key: form.username,
+              });
+  
+              console.log("current user is", client.getUser());
+              store.setUsername(form.username);
+              store.toggleLogin();
+              form.username = "";
+          }
+      };
+  </script>
+  
+  <template>
+      <v-navigation-drawer v-if="store.showLogin" permanent location="right" width="400">
+          <v-card
+              height="250"
+              width="400"
+              color="#282828"
+              class="align-center justify-center"
+          >
+          <v-card-title>Login</v-card-title>
+          <v-spacer></v-spacer>
+          <v-container>
+              <v-row>
+              <v-col>
+                  <v-card-text>
+                  <v-text-field
+                      label="Username"
+                      required
+                      v-model="form.username"
+                  ></v-text-field>
+                  </v-card-text>
+              </v-col>
+              </v-row>
+          </v-container>
+          <v-spacer></v-spacer>
+          <v-card-actions>
+              <v-btn primary @click="login()">Login</v-btn>
+              <v-btn @click="store.toggleLogin()">Cancel</v-btn>
+          </v-card-actions>
+          </v-card>
+      </v-navigation-drawer>
+  </template>
+  ```
+  
+  and go back and include your new component in `src/App.vue`
+  ```vue
+  <!-- abridged version of App.vue -->
+  <template>
+    <v-app>
+      <Login v-if="store.showLogin" />
+      <!-- ... the rest of App.vue template hasn't changed. -->
+  </template>
+  
+  <script setup>
+    // the rest of the script block hasn't changed, just add this import
+  	import Login from './components/Login.vue';
+  </script>
+  ```
+  
+  Now you have a working Login, but, **before** we ship this, let's launch it darkly. :rocket:
+  ![](/Users/ahardman/development/dark-launch-with-a-vue/public/blog-images/login-feature.gif)
+
+
+- First, gate the Login feature by using the `v-if` directive from Vue to conditionally render the button we use to open the drawer and use the composable, `useLDFlag` from the LaunchDarkly Vue SDK to hook into state changes in the flag and get a reactive object Vue can use to observe changes.
+  
+
+  ```vue
+  <template>
+  	<!-- stuff before the account button hasn't changed -->
+  	<v-btn v-if="isLoginEnabled" @click="store.toggleLogin()">
+  	<!-- stuff after the account button hasn't changed -->
+  </template>
+  
+  <script setup>
+    // only showing changes
+    import { useLDReady, useLDFlag } from 'launchdarkly-vue-client-sdk';
+    // create a reactive variable defaulting to false so in case LaunchDarkly client doesn't initialize
+    // we default to showing nothing.
+    let isLoginEnabled = ref(false);
+    try {
+      isLaunchDarklyReady = useLDReady();
+      // if useLDReady errors because something is wrong, we just won't get here
+      isLoginEnabled = useLDFlag('login', false);
+    } catch (error) {
+      console.error('error checking LD Ready', error);
+    }
+  </script>
+  ```
+
+  And just like that, your button to show the Login drawer is no longer showing.
+  When using `useLDFlag` you can provide a default value, in this case `false` which can be used for type inference in strongly-typed environments. Here, we're providing it so that in the time while we wait to get initial flag values from LaunchDarkly (<200ms) we begin with false and only reveal the feature if we receive an update to that value.
+
+- Create the Login feature in LaunchDarkly
+  In the LaunchDarkly console, create a new feature, Login.
+  Make sure to check `SDKs using Client-side ID` 
+
+- Enable the feature in LaunchDarkly
+  Your Login feature is now enabled for all users. If you find something is amiss with your new feature, it's just as easy to turn it back off without shipping anything, just switch the feature off in LaunchDarkly and your login disappears for all users nearly instantaneously.
+
+- This is great time to commit and push your changes so you can share your learning and have a restore point as a backup plan.
+  ```shell
+  git add .
+  git commit -m 'added the login feature gated behind a LaunchDarkly feature flag'
+  git push # if you setup a remote for this repo
+  ```
+
+#### Minigame - It's Alive!
+
+<details><summary>expand this to reveal a mini-game and a chance to level up</summary>
+  For this minigame, we'll ship this app into Replit so you can see it run in the real world.
+  Replit makes it super easy to run in any language with just a little config and if you followed the earlier sidequest of pushing up to Github, we'll just connect Replit to your repo to bring it all together!
+
+  
+
+  
+
+  
+
+</details>
+
+
+
+#### Adding a New Experience
+
+- Creating the Timeline Component
+- Create the new-ui component in LaunchDarkly
+- Target a user for the feature
+- Enable the feature in LaunchDarkly
+- We see our new feature!
