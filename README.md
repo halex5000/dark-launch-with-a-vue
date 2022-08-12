@@ -513,29 +513,63 @@ We are going to leverage LaunchDarkly's targeting to target a specific user so o
   For this minigame, we'll ship this app into Replit so you can see it run in the real world.
   Replit makes it super easy to run in any language with just a little config and if you followed the earlier sidequest of pushing up to Github, we'll just connect Replit to your repo to bring it all together!
 
+  Prerequisite: Create an account in [Replit](https://replit.com/~).
+
   Step 1: Create Replit config files in the project root directory
   - `replit.nix`
-  ```nix
-  { pkgs }: {
-    deps = [
-      pkgs.nodejs-16_x
-          pkgs.nodePackages.typescript-language-server
-          pkgs.yarn
-          pkgs.replitPackages.jest
-    ];
-  }
-  ```
+    ```nix
+    { pkgs }: {
+      deps = [
+        pkgs.nodejs-16_x
+            pkgs.nodePackages.typescript-language-server
+            pkgs.yarn
+            pkgs.replitPackages.jest
+      ];
+    }
+    ```
   - `.replit`
-  ```
-  language="nodejs"
-  run = "npm start"
-  onBoot = "npm install"
-  entrypoint = "./README.md"
-  ```
+    ```
+    language="nodejs"
+    run = "npm run dev"
+    entrypoint = "./README.md"
 
-  
+    [nix]
+    channel = "stable-22_05"
 
-  
+    [languages.javascript]
+    pattern = "**/{*.js,*.jsx,*.ts,*.tsx}"
+
+      [languages.javascript.languageServer]
+      start = [ "typescript-language-server", "--stdio" ]
+
+    [packager]
+    language = "nodejs"
+
+      [packager.features]
+      enabledForHosting = false
+
+    ```
+  - Update `vite.config.js` to expose your app outside of just localhost so Replit can link to it.
+    ```javascript
+      // update the config to indicate there's a server
+      export default defineConfig({
+        server: {
+          host: true
+        },
+      // ... nothing else changed
+    ```
+
+  Step 2: Head over to [Replit](https://replit.com/~)
+  - Click Create
+  - Click the `Import from Github` button
+    (you'll have to authorize Replit to access your Github repo)
+  - Install the packages (after your repl imports)
+    ```shell
+    npm install
+    ```
+
+
+
 
 </details>
 

@@ -1,4 +1,18 @@
 language="nodejs"
-run = "npm start"
-onBoot = "npm install"
+run = "npm run dev"
 entrypoint = "./README.md"
+
+[nix]
+channel = "stable-22_05"
+
+[languages.javascript]
+pattern = "**/{*.js,*.jsx,*.ts,*.tsx}"
+
+  [languages.javascript.languageServer]
+  start = [ "typescript-language-server", "--stdio" ]
+
+[packager]
+language = "nodejs"
+
+  [packager.features]
+  enabledForHosting = false
