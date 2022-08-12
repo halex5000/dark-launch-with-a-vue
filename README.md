@@ -513,7 +513,25 @@ We are going to leverage LaunchDarkly's targeting to target a specific user so o
   For this minigame, we'll ship this app into Replit so you can see it run in the real world.
   Replit makes it super easy to run in any language with just a little config and if you followed the earlier sidequest of pushing up to Github, we'll just connect Replit to your repo to bring it all together!
 
-  
+  Step 1: Create Replit config files in the project root directory
+  - `replit.nix`
+  ```nix
+  { pkgs }: {
+    deps = [
+      pkgs.nodejs-16_x
+          pkgs.nodePackages.typescript-language-server
+          pkgs.yarn
+          pkgs.replitPackages.jest
+    ];
+  }
+  ```
+  - `.replit`
+  ```
+  language="nodejs"
+  run = "npm start"
+  onBoot = "npm install"
+  entrypoint = "./README.md"
+  ```
 
   
 
