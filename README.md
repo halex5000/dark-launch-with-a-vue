@@ -229,7 +229,7 @@ export default createVuetify({
 ```
 
 Much better!
-<img src="/Users/ahardman/development/dark-launch-with-a-vue/public/blog-images/Veautify-dark.png" alt="CleanShot 2022-08-12 at 11.34.04@2x" style="zoom:25%;" />
+<img src="./public/blog-images/Veautify-dark.png" alt="CleanShot 2022-08-12 at 11.34.04@2x" style="zoom:25%;" />
 
 Let's dark launch a new UI now and see some real feature flagging power from LaunchDarkly.
 
@@ -301,12 +301,12 @@ gh repo create
 ? What should the new remote be called? origin
 ```
 
-### The real Dark Launch with a Vue
+### Your first Dark Launch
 
 We're going to add a new feature to our app, but this is going to be a real dark launch.
 We are going to leverage LaunchDarkly's targeting to target a specific user so only they can see the new feature while we build it out so we don't break things for everyone else.
 
-#### Adding a Login Option
+#### Adding a Login Feature
 
 - As our app evolves, it's going to become stateful, so we're going to need a way to share state between our components without breaking all the rules. A state store which conceals this state will work for our app, but you can read more about state management in Vue [here](https://vuejs.org/guide/scaling-up/state-management.html).
   Create a new file `src/components/store.js`  with the following
@@ -364,7 +364,7 @@ We are going to leverage LaunchDarkly's targeting to target a specific user so o
   ```
   
   Which adds this to your toolbar:
-  ![CleanShot 2022-08-12 at 13.50.14@2x](/Users/ahardman/development/dark-launch-with-a-vue/public/blog-images/login-toggle-button.png)
+  ![CleanShot 2022-08-12 at 13.50.14@2x](./public/blog-images/login-toggle-button.png)
   
 - Create a Login Component
   Add a file `Login.vue` to `src/components`
@@ -461,7 +461,7 @@ We are going to leverage LaunchDarkly's targeting to target a specific user so o
   ```
   
   Now you have a working Login, but, **before** we ship this, let's launch it darkly. :rocket:
-  ![](/Users/ahardman/development/dark-launch-with-a-vue/public/blog-images/login-feature.gif)
+  ![](./public/blog-images/login-feature.gif)
 
 
 - First, gate the Login feature by using the `v-if` directive from Vue to conditionally render the button we use to open the drawer and use the composable, `useLDFlag` from the LaunchDarkly Vue SDK to hook into state changes in the flag and get a reactive object Vue can use to observe changes.
@@ -532,22 +532,6 @@ We are going to leverage LaunchDarkly's targeting to target a specific user so o
     language="nodejs"
     run = "npm run dev"
     entrypoint = "./README.md"
-
-    [nix]
-    channel = "stable-22_05"
-
-    [languages.javascript]
-    pattern = "**/{*.js,*.jsx,*.ts,*.tsx}"
-
-      [languages.javascript.languageServer]
-      start = [ "typescript-language-server", "--stdio" ]
-
-    [packager]
-    language = "nodejs"
-
-      [packager.features]
-      enabledForHosting = false
-
     ```
   - Update `vite.config.js` to expose your app outside of just localhost so Replit can link to it.
     ```javascript
@@ -567,15 +551,17 @@ We are going to leverage LaunchDarkly's targeting to target a specific user so o
     ```shell
     npm install
     ```
-
-
-
-
+  - Add a new Secret in Replit
+    - Key: VITE_CLIENT_ID
+    - Value: `your client id from your .env file`
+  - Click `Run` in Replit!
+  - Your app is now live on the interwebs!
+  - :warning: if you have trouble getting your app running in Replit you may need to update the version for vite and @vitejs/plugin-vue to 3.0.1
 </details>
 
 
 
-#### Adding a New Experience
+#### 
 
 - Creating the Timeline Component
 - Create the new-ui component in LaunchDarkly
