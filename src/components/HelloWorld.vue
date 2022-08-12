@@ -94,7 +94,7 @@
 </template>
 
 <script>
-import logo from '../assets/logo.svg'
+import logo from '../../public/blog-images/logo.svg'
 
 export default {
   name: 'HelloWorld',

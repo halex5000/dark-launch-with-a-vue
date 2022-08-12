@@ -623,5 +623,80 @@ We are going to leverage LaunchDarkly's targeting to target a specific user so o
   Effective immediately, this user can see this feature, and only this user.
 
 - Go back and Login to your app with this username and you'll see your new user experience, which is admittedly underwhelming at the moment.
+  If you did the mini game section earlier with Replit, this is a great time to commit, push, and pull into Replit so you can see the changes live!
 
-- 
+- Let's fix that!
+
+  - Step 1: Build out Hello Osmo
+    Back in `src/components/HelloOsmo.vue` paste in this code.
+
+    ```vue
+      <template>
+        <v-timeline>
+          <v-timeline-item
+            v-for="(item, i) in items"
+            :key="i"
+            :dot-color="item.color"
+            :icon="item.icon"
+            fill-dot
+          >
+            <v-card max-width="425" min-width="400" elevated rounded="true">
+              <v-card-title
+                :color="item.color"
+                class="white text--primary text-h5"
+                align="center"
+              >
+                <v-avatar size="150" >
+                  <v-img v-if="item.image" size="100" :src="item.image"></v-img>
+                  <v-icon v-else="item.icon" size="100" :color="dotColor">{{
+                    item.icon
+                  }}</v-icon>
+                </v-avatar>
+                <h4>{{ item.title }}</h4>
+              </v-card-title>
+            </v-card>
+          </v-timeline-item>
+        </v-timeline>
+      </template>
+
+      <script setup>
+      const items = [
+        {
+          color: "#FF386B",
+          icon: "mdi-star",
+          title: "New user experience enabled!",
+        },
+        {
+          color: "#A34FDE",
+          icon: "mdi-account",
+          title: "Login Enabled",
+        },
+        {
+          color: "#405BFF",
+          icon: "mdi-flag",
+          title: "LaunchDarkly",
+          image: "./blog-images/osmo.png",
+        },
+        {
+          color: "#FF386B",
+          icon: "mdi-vuetify",
+          title: "Vuetify",
+          image: "./blog-images/logo.svg",
+        },
+        {
+          color: "#A34FDE",
+          icon: "mdi-vuejs",
+          title: "Vue 3",
+          image: "./blog-images/vue.png",
+        },
+        {
+          color: "#405BFF",
+          icon: "mdi-package",
+          title: "Vite",
+          image: "https://vitejs.dev/logo.svg",
+        },
+      ];
+      </script>
+    ```
+
+    
