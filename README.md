@@ -2,6 +2,16 @@
 
 
 
+maybe an intro post, not building, just introduction to that we have a Vue SDK
+
+- installing the SDK
+- a tiny amount of sample code, snippets
+- links to the docs
+
+this could be a follow on to that post
+
+
+
 If you're building a modern web application there is a huge field of candidates for your runtime, your build, and your hosting.
 
 Vue can be an excellent choice for a number of reasons.
@@ -471,7 +481,7 @@ We are going to leverage LaunchDarkly's targeting to target a specific user so o
   <template>
   	<!-- stuff before the account button hasn't changed -->
   	<v-btn v-if="isLoginEnabled" @click="store.toggleLogin()">
-  	<!-- stuff after the account button hasn't changed -->
+  	<!-- stuff after  the account button hasn't changed -->
   </template>
   
   <script setup>
